@@ -111,8 +111,8 @@ class StreamParser:
         Get the stream information
         """
         streamUrl = get_pref("twitch_api_root") + "/streams?"
-        params = {"channel": self.channel}
-        headers = {"Client-ID": get_pref("twitch_client_id")}
+        params = {"user_login": self.channel}
+        headers = {"Client-ID": get_pref("twitch_client_id"), "Authorization": "Bearer " + get_pref("twitch_oauth_token")}
         streamReq = requests.get(streamUrl, params=params, headers=headers)
         streamData = streamReq.json()
         
@@ -122,19 +122,31 @@ class StreamParser:
 
         # use the channel object we got if we got one, else query for a channel object
         channelData = None
-        if not "streams" in streamData or len(streamData["streams"]) == 0:
+        if not "data" in streamData or len(streamData["data"]) == 0:
             self.status = 0
             if get_pref("lookup_offline_names") == 1:
-                chanUrl = get_pref("twitch_api_root") + "/channels/" + self.channel
-                chanReq = requests.get(chanUrl, headers=headers)
-                channelData = chanReq.json()
+                # figure out user id from login name
+                userUrl = get_pref("twitch_api_root") + "/users"
+                userParams = { 'login': self.channel }
+                userReq = requests.get(userUrl, params=userParams, headers=headers)
+                userID = userReq.json()['data'][0]['id']
+
+                # get channel infos
+                chanUrl = get_pref("twitch_api_root") + "/channels"
+                chanParams = { 'broadcaster_id': userID }
+                chanReq = requests.get(chanUrl, params=chanParams, headers=headers)
+                channelData = chanReq.json()['data'][0]
+
+                self.display_name = channelData["broadcaster_name"] if "broadcaster_name" in channelData else None
+                self.game = channelData["game_name"] if "game_name" in channelData else None
+                self.title = channelData["title"] if "title" in channelData else None
         else:
             self.status = 1
-            channelData = streamData["streams"][0]["channel"]
+            channelData = streamData["data"][0]
 
-        self.display_name = channelData["display_name"] if "display_name" in channelData else None
-        self.game = channelData["game"] if "game" in channelData else None
-        self.title = channelData["status"] if "status" in channelData else None
+            self.display_name = channelData["user_name"] if "user_name" in channelData else None
+            self.game = channelData["game_name"] if "game_name" in channelData else None
+            self.title = channelData["title"] if "title" in channelData else None
 
 
 def is_twitch():
@@ -195,13 +207,16 @@ Methods for handling plugin preferences
 
 def init_pref():
     if get_pref("twitch_api_root") == None:
-        set_pref("twitch_api_root", "https://api.twitch.tv/kraken")
+        set_pref("twitch_api_root", "https://api.twitch.tv/helix")
 
     if get_pref("twitch_base_domain") == None:
         set_pref("twitch_base_domain", "twitch.tv")
 	
     if get_pref("twitch_client_id") == None:
         set_pref("twitch_client_id", "jzkbprff40iqj646a697cyrvl0zt2m6")
+	
+    if get_pref("twitch_oauth_token") == None:
+        set_pref("twitch_oauth_token", "")
 
     if get_pref("bullet_offline") == None:
         set_pref("bullet_offline", "\u25A1 ")
