@@ -213,7 +213,7 @@ def init_pref():
         set_pref("twitch_base_domain", "twitch.tv")
 	
     if get_pref("twitch_client_id") == None:
-        set_pref("twitch_client_id", "jzkbprff40iqj646a697cyrvl0zt2m6")
+        set_pref("twitch_client_id", "gp762nuuoqcoxypju8c569th9wz7q5")
 	
     if get_pref("twitch_oauth_token") == None:
         set_pref("twitch_oauth_token", "")
