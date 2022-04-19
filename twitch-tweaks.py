@@ -39,6 +39,7 @@ t = None
 pluginprefix = "twtw_"
 
 
+topics = {}
 class StreamParser:
 
     def __init__(self, channel):
@@ -70,7 +71,9 @@ class StreamParser:
             if sys.platform == "win32":
                 msg = hexchat.strip(msg, -1, 3)
 
-            if hexchat.get_info("topic") != msg:
+            current_topic = topics[self.channel] if self.channel in topics else None
+            if current_topic != msg:
+                topics[self.channel] = msg
                 hexchat.command("RECV :Topic!Topic@twitch.tv TOPIC #{0} :{1}".format(self.channel, msg))
 
 
