@@ -30,7 +30,7 @@ import hexchat
 
 __module_name__ = "Twitch Tweaks"
 __module_author__ = "bog"
-__module_version__ = "0.2"
+__module_version__ = "0.3"
 __module_description__ = "Do Twitch better. Forked from PDog's twitch-title.py, then forked from oxguy3"
 # TODO: Clean up thread handling <PDog>
 # TODO: Figure out why get_current_status() sometimes doesn't print updated status <PDog>
