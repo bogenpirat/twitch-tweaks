@@ -13,6 +13,15 @@ Anyway, assuming you have the Python interface plugin for HexChat, you can just 
 
 You can probably use this script without having to do any tweaking whatsoever, but if you want, there are some commands and configuration options available.
 
+### Twitch API Tokens
+
+The Twitch API now requires user account-bound OAuth tokens for every call. You'll need to [authenticate against the Twitch OAuth API with your user account](https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=gp762nuuoqcoxypju8c569th9wz7q5&redirect_uri=https://twitchtokengenerator.com&scope=chat:read+chat:edit&state=frontend|anF1eWx4c2hRTFJrUm93OGlxREVhUT09&force_verify=true) and enter the access token into the script's settings like so:
+
+```
+/TWTWSET twitch_client_id <CLIENT ID>
+/TWTWSET twitch_oauth_token <ACCESS TOKEN>
+```
+
 ### Commands
 
 
@@ -25,8 +34,10 @@ You can probably use this script without having to do any tweaking whatsoever, b
 
 Here are all the settings that can be modified with the TWTWSET command, their default values, and brief descriptions of their purpose
 
-* twitch\_api\_root = https://api.twitch.tv/kraken (where is Twitch's API server located? shouldn't ever need to change this)
+* twitch\_api\_root = https://api.twitch.tv/helix (where is Twitch's API server located? shouldn't need to change this)
 * twitch\_base\_domain = twitch.tv (host name used to determine whether or not any given server is a Twitch server. shouldn't ever need to change this)
+* twitch\_client\_id = ...  (Twitch API Client ID required for API calls)
+* twitch\_oauth\_token = ...  (Twitch API User OAuth or App Token required for API calls)
 * bullet\_offline = □  (string displayed beside the names of channels that are currently offline)
 * bullet\_online = ■  (string displayed beside the names of channels that are currently online)
 * modify\_topic = 1 (should TwTw change the topic of Twitch channels? 0 or 1)
