@@ -29,9 +29,9 @@ import threading
 import hexchat
 
 __module_name__ = "Twitch Tweaks"
-__module_author__ = "oxguy3"
-__module_version__ = "0.1"
-__module_description__ = "Do Twitch better. Forked from PDog's twitch-title.py"
+__module_author__ = "bog"
+__module_version__ = "0.2"
+__module_description__ = "Do Twitch better. Forked from PDog's twitch-title.py, then forked from oxguy3"
 # TODO: Clean up thread handling <PDog>
 # TODO: Figure out why get_current_status() sometimes doesn't print updated status <PDog>
 
@@ -110,9 +110,10 @@ class StreamParser:
         """
         Get the stream information
         """
-        streamUrl = get_pref("twitch_api_root") + "/streams?";
+        streamUrl = get_pref("twitch_api_root") + "/streams?"
         params = {"channel": self.channel}
-        streamReq = requests.get(streamUrl, params=params)
+        headers = {"Client-ID": get_pref("twitch_client_id")}
+        streamReq = requests.get(streamUrl, params=params, headers=headers)
         streamData = streamReq.json()
         
         self.display_name = self.channel
@@ -121,19 +122,19 @@ class StreamParser:
 
         # use the channel object we got if we got one, else query for a channel object
         channelData = None
-        if not streamData["streams"]:
+        if not "streams" in streamData or len(streamData["streams"]) == 0:
             self.status = 0
             if get_pref("lookup_offline_names") == 1:
-                chanUrl = get_pref("twitch_api_root") + "/channels/" + self.channel;
-                chanReq = requests.get(chanUrl)
+                chanUrl = get_pref("twitch_api_root") + "/channels/" + self.channel
+                chanReq = requests.get(chanUrl, headers=headers)
                 channelData = chanReq.json()
         else:
             self.status = 1
             channelData = streamData["streams"][0]["channel"]
 
-        self.display_name = channelData["display_name"]
-        self.game = channelData["game"]
-        self.title = channelData["status"]
+        self.display_name = channelData["display_name"] if "display_name" in channelData else None
+        self.game = channelData["game"] if "game" in channelData else None
+        self.title = channelData["status"] if "status" in channelData else None
 
 
 def is_twitch():
@@ -198,6 +199,9 @@ def init_pref():
 
     if get_pref("twitch_base_domain") == None:
         set_pref("twitch_base_domain", "twitch.tv")
+	
+    if get_pref("twitch_client_id") == None:
+        set_pref("twitch_client_id", "jzkbprff40iqj646a697cyrvl0zt2m6")
 
     if get_pref("bullet_offline") == None:
         set_pref("bullet_offline", "\u25A1 ")
